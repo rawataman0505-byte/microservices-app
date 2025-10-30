@@ -57,3 +57,28 @@ exports.profile = (req, res) => {
       user: req.user,
     },
   })}
+
+exports.getAllUsers = async(req,res)=>{
+ // Default values: page=1, limit=10
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Fetch paginated users
+    const users = await User.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // newest first
+
+    // Total count for frontend
+    const totalUsers = await User.countDocuments();
+
+    res.status(200).json({
+      status: "success",
+      results: users.length,
+      totalUsers,
+      currentPage: page,
+      totalPages: Math.ceil(totalUsers / limit),
+      data: users,
+    });
+}
