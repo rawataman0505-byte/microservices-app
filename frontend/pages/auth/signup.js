@@ -48,7 +48,7 @@ export default function Signup() {
             }
 
             // Navigate to home after signup/login
-            router.push('/')
+            router.push('/home')
         } catch (err) {
             setLoading(false)
             // Network/API error; prefer server message

@@ -3,6 +3,7 @@ import Layout from '../../components/Layout'
 import { useEffect, useState } from 'react'
 import { fetchProfile } from '../../services/profile'
 import ProfileCard from '../../components/ProfileCard'
+import Header from '../../components/Header'
 import Link from 'next/link'
 
 export default function Home() {
@@ -38,6 +39,7 @@ export default function Home() {
 
 	return (
 		<Layout>
+			<Header user={user} />
 			<Head>
 				<title>Home — Profile</title>
 			</Head>

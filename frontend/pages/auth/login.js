@@ -42,7 +42,7 @@ export default function Login() {
             }
 
             // redirect to home page using Next router to avoid full reload
-            router.push('/')
+            router.push('/home')
         } catch (err) {
             setLoading(false)
             setError(err && err.message ? err.message : 'Login failed')
