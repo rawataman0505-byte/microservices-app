@@ -7,6 +7,7 @@ exports.verifyToken = (req, res, next) => {
   if (!token) return res.status(401).send("Access denied");
   
   try {
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // ✅ Attach user info to headers before proxy forwards the request
     req.headers["x-user-id"] = decoded.data.userId;
