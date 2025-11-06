@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
 
 const chatSchema = mongoose.Schema({
-    members:{
-        type:[
-            {
-                type: mongoose.Schema.Types.ObjectId ,
-                ref: "users"
-            }
-        ]
-    },
+    members: [
+    {
+      _id: { type: mongoose.Schema.Types.ObjectId, required: true },
+      name: String,
+      email: String
+    }
+  ],
     lastmessage:{
         type:[
             {
