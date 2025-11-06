@@ -15,10 +15,10 @@ export default function Layout({ children }) {
 					</span>
 				</nav>
 			</header> */}
-			<div style={{ padding: '1rem' }}>{children}</div>
-			<footer style={{ padding: '1rem', borderTop: '1px solid #eee', marginTop: '2rem' }}>
+			<div className="home-page" >{children}</div>
+			{/* <footer style={{ padding: '1rem', borderTop: '1px solid #eee', marginTop: '2rem' }}>
 				© {new Date().getFullYear()} My App
-			</footer>
+			</footer> */}
 		</>
 	)
 }
