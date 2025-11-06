@@ -28,9 +28,13 @@ exports.getAllChats = catchAsync(async (req, res, next) => {
   }
 
   // ✅ Query all chats where this user is a member
-  const allChats = await Chats.find({
-    members: { $in: [userId] }, // Must be array
-  }); // optional: populate user details
+  // const allChats = await Chats.find({
+  //   members: { $in: [userId] }, // Must be array
+  // }); // optional: populate user details
+  // const allChats = await Chats.find({ "members._id": userId });
+  const allChats = await Chats.find({ "members._id": userId })
+  .populate("members._id", "name email")
+  .lean();
 
   res.status(200).json({
     message: "Chats fetched successfully",
