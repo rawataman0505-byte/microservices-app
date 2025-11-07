@@ -25,10 +25,22 @@ const onlineUser = []
   }
 
 async function startNewChat(searchedUserId) {
+
   let payload={
-    "members":[currentUser._id, searchedUserId]
+    "members":[
+      {
+      _id:currentUser._id,
+      email:currentUser.email,
+      name:currentUser.name
+
+    }, 
+    {_id:searchedUserId._id,
+    email:searchedUserId.email,
+    name:searchedUserId.name
+    }
+  ]
   }
-      
+      // console.log("payload",payload)
       try {
         const res = await createNewChat(payload)
         // console.log(res && res.data, 'res from create chat');
