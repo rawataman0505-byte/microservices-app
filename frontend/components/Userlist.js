@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,7 +46,7 @@ async function startNewChat(searchedUserId) {
         dispatch(setSelectedChat(parsed))
       } catch (err) {
         // prefer APIError message if present
-        setError(err && err.message ? err.message : 'Failed to load chats')
+        // setError(err && err.message ? err.message : 'Failed to load chats')
         // if unauthorized, token might be invalid/expired
         if (err && err.status === 401) {
           try { localStorage.removeItem('token') } catch (e) {}
@@ -55,12 +55,13 @@ async function startNewChat(searchedUserId) {
     }
 
  const openChat = (selectedUserId) => {
-  
-        const chat = allChats.find(chat => 
-            chat.members.includes(currentUser._id) && 
-            chat.members.includes(selectedUserId)
-        )
-console.log("chat",chat ,selectedUserId);
+
+  // console.log(selectedUserId,currentUser)
+   const chat = allChats.find(chat =>
+    chat.members.some(member => member._id === currentUser._id) &&
+    chat.members.some(member => member._id === selectedUserId._id)
+  );
+  // console.log(chat)
         if(chat){
             dispatch(setSelectedChat(chat));
         }
@@ -68,17 +69,18 @@ console.log("chat",chat ,selectedUserId);
 
 // console.log("allUsers",currentUser);
 
+
   return (
    allUsers.filter(user => {
                 return (user.name?.toLowerCase().includes(searchKey?.toLowerCase()) && searchKey ) ||
-                (allChats.find(chat => chat.members.includes(user._id)))
+                (allChats.find(chat => chat.members.map(m=>m._id).includes(user._id)))
 
             }).map((user) => {
     // compute a safe initial for each user
    
     return  <div
       className="user-search-filter"
-      onClick={() => openChat(user._id)}
+      onClick={() => openChat(user)}
       key={user._id}
     >
       <div className={
@@ -130,11 +132,11 @@ console.log("chat",chat ,selectedUserId);
               {getLastMessageTimeStamp(user._id)}
             </div>
           </div> */}
-          {!allChats.find(chat => chat.members.includes(user._id)) && (
+          {!allChats.find(chat => chat.members.map(m=>m._id).includes(user._id)) && (
             <div className="user-start-chat">
               <button
                 className="user-start-chat-btn"
-                onClick={() => startNewChat(user._id)}
+                onClick={() => startNewChat(user)}
               >
                 Start Chat
               </button>

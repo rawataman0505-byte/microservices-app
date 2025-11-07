@@ -46,6 +46,7 @@ export default function Home() {
 			// console.log(res.data,"res from all users")
 			// Try to extract array of users from a few possible response shapes
 			const parsed = res  && res.data && res.data.data ? res.data.data : null
+			
 			let usersArray = []
 			if (Array.isArray(parsed)) usersArray = parsed
 			else if (Array.isArray(parsed.data)) usersArray = parsed.data
@@ -76,12 +77,13 @@ export default function Home() {
 
 				// Try to extract array of chats from a few possible response shapes
 				const parsed = res && res.data && res.data.data ? res.data.data : null
+				
 				let chatsArray = []
 				if (Array.isArray(parsed)) chatsArray = parsed
 				else if (Array.isArray(parsed.data)) chatsArray = parsed.data
 				else if (Array.isArray(parsed.chats)) chatsArray = parsed.chats
 				else if (Array.isArray(parsed.data && parsed.data.chats)) chatsArray = parsed.data.chats
-
+// console.log("parsed",chatsArray)
 				// dispatch to redux so other pages/components can access all chats
 				dispatch(setAllChats(chatsArray))
 			} catch (err) {
