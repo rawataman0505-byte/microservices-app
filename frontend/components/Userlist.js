@@ -77,8 +77,14 @@ async function startNewChat(searchedUserId) {
         if(chat){
             dispatch(setSelectedChat(chat));
         }
-    }
+  }
 
+   const IsSelectedChat = (user) => {
+        if(selectedChat){
+            return selectedChat.members.map(m => m._id).includes(user._id);
+        }
+        return false;
+    }
 // console.log("allUsers",currentUser);
 
 
@@ -96,9 +102,9 @@ async function startNewChat(searchedUserId) {
       key={user._id}
     >
       <div className={
-        // IsSelectedChat(user) ? 
+        IsSelectedChat(user) ? 
         "selected-user" 
-        // : "filtered-user"
+        : "filtered-user"
         }>
         <div className="filter-user-display">
           {user.profilePic && (
@@ -117,16 +123,16 @@ async function startNewChat(searchedUserId) {
           {!user.profilePic && (
             <div
               className={
-                // IsSelectedChat(user)
-                //   ? "user-selected-avatar"
-                  // : 
+                IsSelectedChat(user)
+                  ? "user-selected-avatar"
+                  : 
                   "user-default-avatar"
               }
               style={
-                // onlineUser.includes(user._id)
-                  // ? 
+                onlineUser.includes(user._id)
+                  ? 
                   { border: "#82e0aa 3px solid" }
-                  // : {}
+                  : {}
               }
             >
               {initial(user)}
