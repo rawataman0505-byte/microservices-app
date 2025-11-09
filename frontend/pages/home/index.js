@@ -10,9 +10,10 @@ import { useAppDispatch } from '../../redux/hooks'
 import { setAllUsers, setAllChats, setUser as setUserAction } from '../../redux/slice/userSlice'
 import Link from 'next/link'
 import ChatArea from '../../components/chatArea'
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Home() {
-	
+	 const { selectedChat } = useSelector(state => state.userReducer);
 	const [error, setError] = useState(null)
 	const [user, setUser] = useState(null)
 	const dispatch = useAppDispatch()
@@ -107,7 +108,7 @@ export default function Home() {
 			<Header user={user} />
 			<main  className="main-content">
 				<Sidebar user={user}></Sidebar>
-				<ChatArea></ChatArea>
+				{selectedChat && <ChatArea></ChatArea>}
 			</main>
 		</Layout>
 	)

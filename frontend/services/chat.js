@@ -4,8 +4,8 @@ import { APIError } from './auth'
 // Next dev server rewrites /api/chat/:path* -> http://localhost:8080/chat/api/chat/:path*
 const DEFAULT_ALL_CHATS_URL = '/api/chat/getAllChats'
 const DEFAULT_CREATE_CHAT_URL = '/api/chat/create-chat' // proxied by Next during dev; falls back to backend via env if provided
-
-
+const DEFAULT_FETCH_MESSAGES_URL = '/api/chat/getNewMessage' // proxied by Next during dev; falls back to backend via env if provided
+const DEFAULT_GET_ALL_MESSAGE_URL = '/api/chat/getAllMessage' // proxied by Next during dev; falls back to backend via env if provided
 
 
 export async function fetchAllChats(){
@@ -147,5 +147,124 @@ export async function createNewChat(payload){
   }
 }
 
-export default { fetchAllChats }
+export async function getNewMessage(payload){
+   let token = null
+  try {
+    token = localStorage.getItem('token')
+  } catch (err) {
+    throw new APIError('Unable to access local storage for auth token', 0, null)
+  }
+
+  if (!token) throw new APIError('Not authenticated', 401, null)
+
+   try {
+    let url = DEFAULT_FETCH_MESSAGES_URL
+    const envCreate = process.env.NEXT_PUBLIC_GET_NEW_MESSAGE_URL
+    if (envCreate) {
+      try {
+        const parsed = new URL(envCreate)
+        if (parsed.pathname && parsed.pathname.startsWith('/chat/api/chat')) {
+          url = '/api/chat' + parsed.pathname.replace('/chat/api/chat','')
+        } else {
+          url = envCreate
+        }
+      } catch (e) {
+        url = envCreate
+      }
+    }
+    if (typeof console !== 'undefined' && console.debug) console.debug('createNewChat: calling', url)
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload || {})
+    })
+
+    let data = null
+    let rawText = null
+    try { data = await res.json() } catch (e) { try { rawText = await res.text() } catch (ee) { rawText = null } }
+
+    if (!res.ok) {
+      const message = (data && data.message) || (rawText && String(rawText).slice(0,512)) || `Create chat failed (${res.status})`
+      const responsePayload = data || (rawText ? { text: rawText } : null)
+      if (typeof console !== 'undefined' && console.error) console.error('getNewMessage error', { status: res.status, response: responsePayload })
+      throw new APIError(message, res.status, responsePayload)
+    }
+
+    return { data }
+  } catch (err) {
+    if (err instanceof APIError) throw err
+    if (typeof console !== 'undefined' && console.error) console.error('getNewMessage unexpected error', err)
+    throw new APIError(err && err.message ? err.message : 'Network error', 0, null)
+  }
+
+}
+
+export async function getAllMessages(chatId){
+  console.log("chatId",chatId)
+ if (!chatId) throw new APIError('chatId is required', 0, null)
+ let token = null
+  try {
+    token = localStorage.getItem('token')
+  } catch (err) {
+    throw new APIError('Unable to access local storage for auth token', 0, null)
+  }
+
+  if (!token) throw new APIError('Not authenticated', 401, null)
+console.log("token",token)
+   try {
+    let url = DEFAULT_GET_ALL_MESSAGE_URL
+    const envCreate = process.env.NEXT_PUBLIC_GET_ALL_MESSAGE_URL
+    if (envCreate) {
+      try {
+        const parsed = new URL(envCreate)
+        if (parsed.pathname && parsed.pathname.startsWith('/chat/api/chat')) {
+          url = '/api/chat' + parsed.pathname.replace('/chat/api/chat','')
+        } else {
+          url = envCreate
+        }
+      } catch (e) {
+        url = envCreate
+      }
+    }
+    // Append chatId to the path (client-side proxy paths expect it)
+    // Ensure no double-slash
+    url = url.replace(/\/+$/,'') + '/' + encodeURIComponent(chatId)
+    if (typeof console !== 'undefined' && console.debug) console.debug('GetAllMessage: calling', url)
+console.log("url",url)
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      
+    })
+
+    let data = null
+    let rawText = null
+    try { data = await res.json() } catch (e) { try { rawText = await res.text() } catch (ee) { rawText = null } }
+
+    if (!res.ok) {
+      const message = (data && data.message) || (rawText && String(rawText).slice(0,512)) || `Create chat failed (${res.status})`
+      const responsePayload = data || (rawText ? { text: rawText } : null)
+      if (typeof console !== 'undefined' && console.error) console.error('GetAllMessage error', { status: res.status, response: responsePayload })
+      throw new APIError(message, res.status, responsePayload)
+    }
+
+    return { data }
+  } catch (err) {
+    if (err instanceof APIError) throw err
+    if (typeof console !== 'undefined' && console.error) console.error('GetAllMessage unexpected error', err)
+    throw new APIError(err && err.message ? err.message : 'Network error', 0, null)
+  }
+
+}
+
+export default { fetchAllChats, createNewChat, getNewMessage, getAllMessages }
 
