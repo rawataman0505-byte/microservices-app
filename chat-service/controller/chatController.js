@@ -20,7 +20,7 @@ exports.CreateChat = catchAsync(async (req, res) => {
 
 exports.getAllChats = catchAsync(async (req, res, next) => {
   // ✅ Get user ID from JWT middleware
-  console.log(req.user);
+  // console.log(req.user);
   const userId = req.headers["x-user-id"];
 
   if (!userId) {

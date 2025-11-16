@@ -6,7 +6,13 @@ const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const app = express();
 const chatRoutes = require("./routes/chatRoutes")
+const Server = require("http").createServer(app);
 
+const io = require('socket.io')(Server, {cors:{
+  origin: "*",
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+
+}})
 
 const corsOptions = {
     origin: "*",
@@ -29,6 +35,7 @@ app.use(helmet({
 }));
 
 app.use(express.json());
+
 app.use(express.urlencoded());
 
 app.use(cookieParser());
@@ -63,8 +70,52 @@ app.use((err, req, res, next) => {
   });
 });
 
+//TEST SOCKET CONNECTION FROM CLIENT
+io.on('connection', socket => {
+    socket.on('join-room', userid => {
+        socket.join(userid);
+    })
 
-module.exports = app;
+    socket.on('send-message', (message) => {
+        io
+        .to(message.members[0])
+        .to(message.members[1])
+        .emit('receive-message', message)
+
+        io
+        .to(message.members[0])
+        .to(message.members[1])
+        .emit('set-message-count', message)
+    })
+
+    socket.on('clear-unread-messages', data => {
+        io
+        .to(data.members[0])
+        .to(data.members[1])
+        .emit('message-count-cleared', data)
+    })
+
+    socket.on('user-typing', (data) => {
+        io
+        .to(data.members[0])
+        .to(data.members[1])
+        .emit('started-typing', data)
+    })
+
+    socket.on('user-login', userId => {
+        if(!onlineUser.includes(userId)){
+            onlineUser.push(userId)
+        }
+        socket.emit('online-users', onlineUser);
+    })
+
+    socket.on('user-offline', userId => {
+        onlineUser.splice(onlineUser.indexOf(userId), 1);
+        io.emit('online-users-updated', onlineUser);
+    })
+})
+
+module.exports = Server;
 
 // app.use((err,req,res,next)=>{
 //     // err.statusCode = err.statusCode || 500;
